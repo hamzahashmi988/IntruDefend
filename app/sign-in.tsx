@@ -7,25 +7,32 @@ const Signin = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-
-      {/* Input Fields */}
-
-      <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
+    <React.Fragment>
 
 
 
-      <TouchableOpacity onPress={() => router.push('/register')}>
-        <Text style={styles.registerText}>Register Account</Text>
-      </TouchableOpacity>
+      <View style={styles.container}>
 
-      {/* Submit Button */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.title}>Login</Text>
+
+        {/* Input Fields */}
+
+        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" keyboardType="email-address" />
+        <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
+
+
+
+        <TouchableOpacity onPress={() => router.push('/register')}>
+          <Text style={styles.registerText}>Register Account</Text>
+        </TouchableOpacity>
+
+        {/* Submit Button */}
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    </React.Fragment>
+
   );
 };
 
