@@ -1,19 +1,23 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity,ImageBackground ,Image} from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import bg from "../assets/bg-shape.png"
 
 const Signin = () => {
 
   const router = useRouter();
 
   return (
+
+
+
     <React.Fragment>
 
-
-
+<View style={styles.container}>
+<Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
+</View>
       <View style={styles.container}>
-
-        <Text style={styles.title}>Login</Text>
+ <Text style={styles.title}>Login</Text>
 
         {/* Input Fields */}
 
@@ -39,16 +43,20 @@ const Signin = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    padding: 10,
     backgroundColor: '#f8f9fa',
+    
+    
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 30,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 30,
+        marginTop: 0,
+        padding: 0,
+    
   },
   input: {
     height: 50,

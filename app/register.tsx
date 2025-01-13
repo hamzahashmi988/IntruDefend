@@ -1,6 +1,10 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+
+import bg from "../assets/bg-shape.png"
+
+// const bg = require("../assets/bg-shape.png")
 
 const Signin = () => {
 
@@ -8,6 +12,7 @@ const Signin = () => {
 
     return (
         <View style={styles.container}>
+            <Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
             <Text style={styles.title}>Signup</Text>
 
             {/* Input Fields */}
@@ -31,10 +36,9 @@ const Signin = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 20,
-        justifyContent: 'center',
         backgroundColor: '#f8f9fa',
+        position: "relative"
     },
     title: {
         fontSize: 24,
@@ -42,6 +46,7 @@ const styles = StyleSheet.create({
         color: '#333',
         textAlign: 'center',
         marginBottom: 30,
+        marginTop: 200
     },
     input: {
         height: 50,
