@@ -1,52 +1,69 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import bg from "../assets/bg-shape.png";
 
-import bg from "../assets/bg-shape.png"
-
-// const bg = require("../assets/bg-shape.png")
-
-const Signin = () => {
-
+const Signup = () => {
     const router = useRouter();
 
     return (
-        <View style={styles.container}>
-            <Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
-            <Text style={styles.title}>Signup</Text>
+        <React.Fragment>
+                  <Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
+                <View style={styles.container}>
+                    {/* Signup Form */}
+                    <View style={styles.form}>
+                        <Text style={styles.title}>Signup</Text>
 
-            {/* Input Fields */}
-            <TextInput style={styles.input} placeholder="Full Name" placeholderTextColor="#888" />
-            <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" keyboardType="email-address" />
-            <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
-            <TextInput style={styles.input} placeholder="Confirm Password" placeholderTextColor="#888" secureTextEntry />
+                        {/* Input Fields */}
+                        <TextInput style={styles.input} placeholder="Full Name" placeholderTextColor="#888" />
+                        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" keyboardType="email-address" />
+                        <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
+                        <TextInput style={styles.input} placeholder="Confirm Password" placeholderTextColor="#888" secureTextEntry />
 
+                        {/* Login Link */}
+                        <TouchableOpacity onPress={() => router.back()}>
+                            <Text style={styles.registerText}>Login</Text>
+                        </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.registerText}>Login</Text>
-            </TouchableOpacity>
-
-            {/* Submit Button */}
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
-        </View>
+                        {/* Submit Button */}
+                        <TouchableOpacity style={styles.button}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            
+        </React.Fragment>
     );
 };
 
 const styles = StyleSheet.create({
+    backgroundImage: {
+        flex: 1, // Ensures the background image covers the entire screen
+    },
     container: {
+        flex: 1,
+        justifyContent: 'center', // Center content vertically
+        alignItems: 'center', // Center content horizontally
+        backgroundColor: 'rgba(0,0,0,0.2)', // Add a semi-transparent overlay if needed
+    },
+    form: {
+        width: '90%', // Adjust width as needed
+        maxWidth: 400, // Optional: Set a maximum width for larger screens
+        backgroundColor: '#fff',
+        borderRadius: 10,
         padding: 20,
-        backgroundColor: '#f8f9fa',
-        position: "relative"
+        elevation: 5, // Shadow for Android
+        shadowColor: '#000', // Shadow for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         color: '#333',
         textAlign: 'center',
-        marginBottom: 30,
-        marginTop: 200
+        marginBottom: 20,
     },
     input: {
         height: 50,
@@ -57,7 +74,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: 16,
         backgroundColor: '#fff',
-        color: "black"
     },
     button: {
         height: 50,
@@ -80,4 +96,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Signin;
+export default Signup;
