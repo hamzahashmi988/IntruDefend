@@ -15,8 +15,8 @@ import bg from "../assets/bg-shape.png";
 const Signin = () => {
   const router = useRouter();
 
-  const [email, setEmail] = useState("hamzahacker@gmail.com");
-  const [Password, setPassword] = useState("12345678");
+  const [email, setEmail] = useState("");
+  const [Password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = () => {
