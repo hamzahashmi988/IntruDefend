@@ -8,39 +8,59 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import * as Yup from "yup";
+
 import { useRouter } from "expo-router";
+import { Form, FieldType, FormRefType } from "../form";
+
 import bg from "../assets/bg-shape.png";
+import Button from "@/components/Button";
+
+type FormDataType = {
+  email: string;
+  password: string;
+};
+
+const validationSchema = Yup.object({
+  email: Yup.string().email().required(),
+  password: Yup.string().required(),
+});
 
 const Signin = () => {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
+  const formRef = useRef<FormRefType<FormDataType>>(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
-    const formdata = new FormData();
-    formdata.append("email", email);
-    formdata.append("password", Password);
+  const FormConfig: Array<FieldType> = [
+    {
+      name: "email",
+      placeholder: "Email",
+      value: "",
+      icon: require("../assets/email.png"),
+      containerStyles: { marginBottom: 20 },
+      keyboardType: "email-address",
+    },
+    {
+      name: "password",
+      placeholder: "Password",
+      value: "",
+      icon: require("../assets/lock.png"),
+      secureText: true,
+    },
+  ];
 
-    setIsLoading(true);
-
-    fetch("https://4631-111-88-81-41.ngrok-free.app/login", {
-      method: "POST",
-      body: formdata,
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        Alert.alert(res?.message || res?.error);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log("----->", err);
-      });
+  const handleSubmitForm = (data: FormDataType) => {
+    const { email, password } = data;
+    const payload = {
+      email,
+      password,
+    };
   };
+
+  const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
 
   return (
     <React.Fragment>
@@ -55,39 +75,22 @@ const Signin = () => {
         <View style={styles.form}>
           <Text style={styles.title}>Login</Text>
 
-          {/* Input Fields */}
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={(val) => setEmail(val)}
-            placeholder="Email"
-            placeholderTextColor="#888"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            value={Password}
-            onChangeText={(val) => setPassword(val)}
-            placeholder="Password"
-            placeholderTextColor="#888"
-            secureTextEntry
+          <Form<FormDataType>
+            config={FormConfig}
+            formRef={formRef}
+            validationSchema={validationSchema}
           />
 
-          {/* Register Link */}
           <TouchableOpacity onPress={() => router.push("/register")}>
             <Text style={styles.registerText}>Register Account</Text>
           </TouchableOpacity>
 
-          {isLoading && <ActivityIndicator />}
-
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={styles.button}
+          <Button
+            title="Log In"
             disabled={isLoading}
-            onPress={handleSubmit}
-          >
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
+            onPress={onSubmit}
+            isLoading={isLoading}
+          />
         </View>
       </View>
     </React.Fragment>
@@ -123,24 +126,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  button: {
-    height: 50,
-    backgroundColor: "#007BFF",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-    marginTop: 10,
-  },
+
   buttonText: {
     fontSize: 18,
     color: "#fff",
@@ -151,6 +137,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#007BFF",
     textAlign: "center",
+    marginBottom: 10,
   },
 });
 
