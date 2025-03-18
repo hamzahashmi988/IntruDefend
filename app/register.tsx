@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import React, { useRef, useState } from "react";
 import * as Yup from "yup";
 import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+
 import { Form, FieldType, FormRefType } from "../form";
 
 import bg from "../assets/bg-shape.png";
@@ -31,13 +33,27 @@ const Register = () => {
   const router = useRouter();
   const formRef = useRef<FormRefType<FormDataType>>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
 
   const FormConfig: Array<FieldType> = [
     {
       name: "fullName",
       placeholder: "Full Name",
       value: "",
-      icon: require("../assets/email.png"),
+      icon: require("../assets/person.png"),
       containerStyles: { marginBottom: 15 },
     },
     {
@@ -52,7 +68,7 @@ const Register = () => {
       name: "phoneNumber",
       placeholder: "Phone Number",
       value: "",
-      icon: require("../assets/email.png"),
+      icon: require("../assets/phone.png"),
       keyboardType: "phone-pad",
       containerStyles: { marginBottom: 15 },
     },
@@ -60,7 +76,7 @@ const Register = () => {
       name: "alternatePhone",
       placeholder: "Alternate Phone",
       value: "",
-      icon: require("../assets/email.png"),
+      icon: require("../assets/phone.png"),
       keyboardType: "phone-pad",
       containerStyles: { marginBottom: 15 },
     },
@@ -103,6 +119,15 @@ const Register = () => {
             formRef={formRef}
             validationSchema={validationSchema}
           />
+
+          <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+            <Text style={styles.imagePickerText}>Select Profile Image</Text>
+          </TouchableOpacity>
+          {selectedImage && (
+            <Text style={styles.imageName}>
+              {selectedImage.split("/").pop()}
+            </Text>
+          )}
 
           <TouchableOpacity onPress={() => router.canGoBack()}>
             <Text style={styles.signinText}>
@@ -154,6 +179,24 @@ const styles = StyleSheet.create({
     color: "#007BFF",
     textAlign: "center",
     marginBottom: 10,
+  },
+
+  imagePicker: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  imagePickerText: {
+    color: "#000",
+    fontSize: 16,
+    marginTop:10,
+  },
+  imageName: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 15,
   },
 });
 
