@@ -1,54 +1,90 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useRef, useState } from "react";
+import * as Yup from "yup";
 import { useRouter } from "expo-router";
+import { Form, FieldType, FormRefType } from "../form";
+
 import bg from "../assets/bg-shape.png";
+import Button from "@/components/Button";
 
-const Signup = () => {
+type FormDataType = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  alternatePhone: string;
+  address: string;
+  password: string;
+};
+
+const validationSchema = Yup.object({
+  fullName: Yup.string().required("Full Name is required"),
+  email: Yup.string().email().required("Email is required"),
+  phoneNumber: Yup.string().required("Phone Number is required"),
+  alternatePhone: Yup.string().required(),
+  address: Yup.string().required("Address is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
+
+const Register = () => {
   const router = useRouter();
-
-  const [email, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
+  const formRef = useRef<FormRefType<FormDataType>>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [phone_no, setPhone_no] = useState("");
-  const [alternate_phone_no, setalternate_Phone_no] = useState("");
-  const [address, setaddress] = useState("");
-  const [name, setname] = useState("");
 
-  const handleSubmit = () => {
-    const formdata = new FormData();
-    formdata.append("email", email);
-    formdata.append("password", Password);
-    formdata.append("phone_no", phone_no);
-    formdata.append("alternate_phone_no", alternate_phone_no);
-    formdata.append("address", address);
-    formdata.append("name", name);
+  const FormConfig: Array<FieldType> = [
+    {
+      name: "fullName",
+      placeholder: "Full Name",
+      value: "",
+      icon: require("../assets/email.png"),
+      containerStyles: { marginBottom: 15 },
+    },
+    {
+      name: "email",
+      placeholder: "Email",
+      value: "",
+      icon: require("../assets/email.png"),
+      keyboardType: "email-address",
+      containerStyles: { marginBottom: 15 },
+    },
+    {
+      name: "phoneNumber",
+      placeholder: "Phone Number",
+      value: "",
+      icon: require("../assets/email.png"),
+      keyboardType: "phone-pad",
+      containerStyles: { marginBottom: 15 },
+    },
+    {
+      name: "alternatePhone",
+      placeholder: "Alternate Phone",
+      value: "",
+      icon: require("../assets/email.png"),
+      keyboardType: "phone-pad",
+      containerStyles: { marginBottom: 15 },
+    },
+    {
+      name: "address",
+      placeholder: "Address",
+      value: "",
+      icon: require("../assets/email.png"),
+      containerStyles: { marginBottom: 15 },
+    },
+    {
+      name: "password",
+      placeholder: "Password",
+      value: "",
+      icon: require("../assets/lock.png"),
+      secureText: true,
+    },
+  ];
 
-    setIsLoading(true);
-
-    fetch("https://4631-111-88-81-41.ngrok-free.app/sign-up", {
-      method: "POST",
-      body: formdata,
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        Alert.alert(res?.message || res?.error);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log("----->", err);
-      });
+  const handleSubmitForm = (data: FormDataType) => {
+    console.log("Form Data:", data);
   };
+
+  const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
 
   return (
     <React.Fragment>
@@ -57,67 +93,29 @@ const Signup = () => {
         resizeMode="stretch"
         style={{ position: "absolute", width: 250, height: 160 }}
       />
+
       <View style={styles.container}>
-        {/* Signup Form */}
         <View style={styles.form}>
-          <Text style={styles.title}>Signup</Text>
+          <Text style={styles.title}>Register</Text>
 
-          {/* Input Fields */}
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={(val) => setname(val)}
-            placeholder="Full Name"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={(val) => setEmail(val)}
-            placeholder="Email"
-            placeholderTextColor="#888"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            value={phone_no}
-            onChangeText={(val) => setPhone_no(val)}
-            placeholder="Phone_no"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.input}
-            value={alternate_phone_no}
-            onChangeText={(val) => setalternate_Phone_no(val)}
-            placeholder="alternate_phone_no"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.input}
-            value={address}
-            onChangeText={(val) => setaddress(val)}
-            placeholder="address"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.input}
-            value={Password}
-            onChangeText={(val) => setPassword(val)}
-            placeholder="Password"
-            placeholderTextColor="#888"
-            secureTextEntry
+          <Form<FormDataType>
+            config={FormConfig}
+            formRef={formRef}
+            validationSchema={validationSchema}
           />
 
-          {isLoading && <ActivityIndicator />}
-          {/* Login Link */}
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.registerText}>Login</Text>
+          <TouchableOpacity onPress={() => router.canGoBack()}>
+            <Text style={styles.signinText}>
+              Already have an account? Sign In
+            </Text>
           </TouchableOpacity>
 
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
+          <Button
+            title="Register"
+            disabled={isLoading}
+            onPress={onSubmit}
+            isLoading={isLoading}
+          />
         </View>
       </View>
     </React.Fragment>
@@ -125,23 +123,20 @@ const Signup = () => {
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1, // Ensures the background image covers the entire screen
-  },
   container: {
     flex: 1,
-    justifyContent: "center", // Center content vertically
-    alignItems: "center", // Center content horizontally
-    backgroundColor: "rgba(0,0,0,0.2)", // Add a semi-transparent overlay if needed
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.2)",
   },
   form: {
-    width: "90%", // Adjust width as needed
-    maxWidth: 400, // Optional: Set a maximum width for larger screens
+    width: "90%",
+    maxWidth: 400,
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    elevation: 5, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -153,35 +148,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  button: {
-    height: 50,
-    backgroundColor: "#007BFF",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  buttonText: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  registerText: {
+  signinText: {
     marginTop: 15,
     fontSize: 16,
     color: "#007BFF",
     textAlign: "center",
+    marginBottom: 10,
   },
 });
 
-export default Signup;
+export default Register;
