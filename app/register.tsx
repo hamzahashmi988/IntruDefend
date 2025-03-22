@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import React, { useRef, useState } from "react";
 import * as Yup from "yup";
 import { useRouter } from "expo-router";
@@ -8,6 +15,7 @@ import { Form, FieldType, FormRefType } from "../form";
 
 import bg from "../assets/bg-shape.png";
 import Button from "@/components/Button";
+import { objectToFormData } from "@/utls/common.utils";
 
 type FormDataType = {
   fullName: string;
@@ -97,7 +105,17 @@ const Register = () => {
   ];
 
   const handleSubmitForm = (data: FormDataType) => {
-    console.log("Form Data:", data);
+    setIsLoading(true);
+
+    fetch("http://localhost:3000/sign-up", {
+      method: "POST",
+      body: objectToFormData({ ...data, file: selectedImage }),
+    }).then((res) => {
+      if (res.status == 200) {
+        Alert.alert("Signup success");
+      }
+      setIsLoading(false);
+    });
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
@@ -190,7 +208,7 @@ const styles = StyleSheet.create({
   imagePickerText: {
     color: "#000",
     fontSize: 16,
-    marginTop:10,
+    marginTop: 10,
   },
   imageName: {
     textAlign: "center",

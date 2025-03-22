@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import React, { useRef, useState } from "react";
 import * as Yup from "yup";
 
@@ -7,6 +14,7 @@ import { Form, FieldType, FormRefType } from "../form";
 
 import bg from "../assets/bg-shape.png";
 import Button from "@/components/Button";
+import { objectToFormData } from "@/utls/common.utils";
 
 type FormDataType = {
   email: string;
@@ -45,10 +53,16 @@ const Signin = () => {
 
   const handleSubmitForm = (data: FormDataType) => {
     const { email, password } = data;
-    const payload = {
-      email,
-      password,
-    };
+
+    fetch("http://localhost:3000/login", {
+      method: "POST",
+      body: objectToFormData({ ...data }),
+    }).then((res) => {
+      if (res.status == 200) {
+        Alert.alert("login success");
+      }
+      setIsLoading(false);
+    });
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
