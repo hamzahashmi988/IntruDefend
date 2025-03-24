@@ -52,27 +52,50 @@ const Signin = () => {
   ];
 
   const handleSubmitForm = (data: FormDataType) => {
-    const { email, password } = data;
+    setIsLoading(true);
 
     fetch("https://96c8-39-51-111-109.ngrok-free.app/login", {
       method: "POST",
+      headers: {
+        'Accept': 'application/json',
+      },
       body: objectToFormData({ ...data }),
-    }).then((res) => {
-      if (res.status == 200) {
+    })
+      .then((res) => res.json())
+      .catch(error => {
+        console.error('Error parsing JSON:', error);
+        throw error;
+      })
+      .then((responseData) => {
+        setIsLoading(false);
+        console.log('Response:', responseData);
+
         Alert.alert(
           "Success",
           "Login completed successfully",
           [
-            { text: "OK", onPress: () => console.log("OK Pressed") }
-          ]
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK Pressed");
+                router.push("/");
+              }
+            }
+          ],
+          { cancelable: false }
         );
-      }
-      setIsLoading(false);
-    }).catch((err) => {
-      Alert.alert("login failed");
-      console.log("login failed asdsadasd", err);
-      setIsLoading(false);
-    });
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setIsLoading(false);
+
+        Alert.alert(
+          "Error",
+          "Login failed. Please try again.",
+          [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+      });
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();

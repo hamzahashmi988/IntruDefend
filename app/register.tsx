@@ -124,22 +124,33 @@ const Register = () => {
     fetch("https://96c8-39-51-111-109.ngrok-free.app/sign-up", {
       method: "POST",
       body: formData,
-    }).then((res) => {
-      if (res.status == 200) {
+    })
+      .then(async (res) => {
+        setIsLoading(false);
+        if (res.status === 200) {
+          Alert.alert(
+            "Success",
+            "Signup completed successfully",
+            [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+          );
+        } else {
+          // Handle non-200 responses
+          Alert.alert(
+            "Error",
+            "Signup failed. Please try again.",
+            [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+          );
+        }
+      })
+      .catch((err) => {
+        setIsLoading(false);
         Alert.alert(
-          "Success",
-          "Signup completed successfully",
-          [
-            { text: "OK", onPress: () => console.log("OK Pressed") }
-          ]
+          "Error",
+          "Signup failed. Please check your connection.",
+          [{ text: "OK", onPress: () => console.log("OK Pressed") }]
         );
-      }
-      setIsLoading(false);
-    }).catch((err) => {
-      Alert.alert("signup failed");
-      console.log("signup failed asdsadasd", err);
-      setIsLoading(false);
-    });
+        console.log("signup failed:", err);
+      });
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
