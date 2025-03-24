@@ -8,7 +8,7 @@ type LoaderProps = {
 };
 
 const Loader: React.FC<LoaderProps> = (props) => {
-  const { size = 15, style, color } = props;
+  const { size = 15, style, color = "#000000" } = props;
   return <ActivityIndicator size={size} color={color} style={style} />;
 };
 

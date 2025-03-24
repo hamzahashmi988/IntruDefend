@@ -39,9 +39,9 @@ const Input: React.FC<InputProps> = (props) => {
     containerStyles = {},
     inputStyles = {},
     wrapperStyles = {},
-    onChange = () => {},
+    onChange = () => { },
     secureText = false,
-    onBlur = () => {},
+    onBlur = () => { },
     keyboardType = "default",
   } = props;
 
@@ -96,6 +96,8 @@ const Input: React.FC<InputProps> = (props) => {
           placeholder={placeholder}
           onChangeText={onChange}
           value={value}
+          placeholderTextColor="#007BFF"
+
           secureTextEntry={showField}
           onBlur={onBlur}
           keyboardType={keyboardType}

@@ -18,19 +18,19 @@ import Button from "@/components/Button";
 import { objectToFormData } from "@/utls/common.utils";
 
 type FormDataType = {
-  fullName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
-  alternatePhone: string;
+  phone_no: string;
+  alternate_phone_no: string;
   address: string;
   password: string;
 };
 
 const validationSchema = Yup.object({
-  fullName: Yup.string().required("Full Name is required"),
+  name: Yup.string().required("Full Name is required"),
   email: Yup.string().email().required("Email is required"),
-  phoneNumber: Yup.string().required("Phone Number is required"),
-  alternatePhone: Yup.string().required(),
+  phone_no: Yup.string().required("Phone Number is required"),
+  alternate_phone_no: Yup.string().required(),
   address: Yup.string().required("Address is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
@@ -41,7 +41,7 @@ const Register = () => {
   const router = useRouter();
   const formRef = useRef<FormRefType<FormDataType>>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -52,13 +52,18 @@ const Register = () => {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      // First fetch the file as blob
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+      // Create a File object from the blob
+      const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+      setSelectedImage(file);
     }
   };
 
   const FormConfig: Array<FieldType> = [
     {
-      name: "fullName",
+      name: "name",
       placeholder: "Full Name",
       value: "",
       icon: require("../assets/person.png"),
@@ -73,7 +78,7 @@ const Register = () => {
       containerStyles: { marginBottom: 15 },
     },
     {
-      name: "phoneNumber",
+      name: "phone_no",
       placeholder: "Phone Number",
       value: "",
       icon: require("../assets/phone.png"),
@@ -81,7 +86,7 @@ const Register = () => {
       containerStyles: { marginBottom: 15 },
     },
     {
-      name: "alternatePhone",
+      name: "alternate_phone_no",
       placeholder: "Alternate Phone",
       value: "",
       icon: require("../assets/phone.png"),
@@ -106,14 +111,33 @@ const Register = () => {
 
   const handleSubmitForm = (data: FormDataType) => {
     setIsLoading(true);
-
-    fetch("http://localhost:3000/sign-up", {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("phone_no", data.phone_no);
+    formData.append("alternate_phone_no", data.alternate_phone_no);
+    formData.append("address", data.address);
+    formData.append("password", data.password);
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+    fetch("https://96c8-39-51-111-109.ngrok-free.app/sign-up", {
       method: "POST",
-      body: objectToFormData({ ...data, file: selectedImage }),
+      body: formData,
     }).then((res) => {
       if (res.status == 200) {
-        Alert.alert("Signup success");
+        Alert.alert(
+          "Success",
+          "Signup completed successfully",
+          [
+            { text: "OK", onPress: () => console.log("OK Pressed") }
+          ]
+        );
       }
+      setIsLoading(false);
+    }).catch((err) => {
+      Alert.alert("signup failed");
+      console.log("signup failed asdsadasd", err);
       setIsLoading(false);
     });
   };
@@ -143,11 +167,11 @@ const Register = () => {
           </TouchableOpacity>
           {selectedImage && (
             <Text style={styles.imageName}>
-              {selectedImage.split("/").pop()}
+              {selectedImage.name}
             </Text>
           )}
 
-          <TouchableOpacity onPress={() => router.canGoBack()}>
+          <TouchableOpacity onPress={() => router.push("/sign-in")}>
             <Text style={styles.signinText}>
               Already have an account? Sign In
             </Text>

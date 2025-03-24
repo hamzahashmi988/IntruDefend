@@ -54,13 +54,23 @@ const Signin = () => {
   const handleSubmitForm = (data: FormDataType) => {
     const { email, password } = data;
 
-    fetch("http://localhost:3000/login", {
+    fetch("https://96c8-39-51-111-109.ngrok-free.app/login", {
       method: "POST",
       body: objectToFormData({ ...data }),
     }).then((res) => {
       if (res.status == 200) {
-        Alert.alert("login success");
+        Alert.alert(
+          "Success",
+          "Login completed successfully",
+          [
+            { text: "OK", onPress: () => console.log("OK Pressed") }
+          ]
+        );
       }
+      setIsLoading(false);
+    }).catch((err) => {
+      Alert.alert("login failed");
+      console.log("login failed asdsadasd", err);
       setIsLoading(false);
     });
   };
