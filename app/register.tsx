@@ -42,6 +42,7 @@ const Register = () => {
   const formRef = useRef<FormRefType<FormDataType>>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -52,12 +53,9 @@ const Register = () => {
     });
 
     if (!result.canceled) {
-      // First fetch the file as blob
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
-      // Create a File object from the blob
-      const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
-      setSelectedImage(file);
+      // Store the image info directly
+      setSelectedImage(result.assets[0]);
+      setImageUri(result.assets[0].uri);
     }
   };
 
@@ -118,11 +116,20 @@ const Register = () => {
     formData.append("alternate_phone_no", data.alternate_phone_no);
     formData.append("address", data.address);
     formData.append("password", data.password);
+
     if (selectedImage) {
-      formData.append("image", selectedImage);
+      formData.append("image", {
+        uri: selectedImage.uri,
+        type: 'image/jpeg',
+        name: 'photo.jpg',
+      } as any);
     }
+
     fetch("https://96c8-39-51-111-109.ngrok-free.app/sign-up", {
       method: "POST",
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
       body: formData,
     })
       .then(async (res) => {
@@ -131,14 +138,13 @@ const Register = () => {
           Alert.alert(
             "Success",
             "Signup completed successfully",
-            [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+            [{ text: "OK", onPress: () => router.push("/sign-in") }]
           );
         } else {
-          // Handle non-200 responses
           Alert.alert(
             "Error",
             "Signup failed. Please try again.",
-            [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+            [{ text: "OK" }]
           );
         }
       })
@@ -147,7 +153,7 @@ const Register = () => {
         Alert.alert(
           "Error",
           "Signup failed. Please check your connection.",
-          [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+          [{ text: "OK" }]
         );
         console.log("signup failed:", err);
       });
@@ -174,13 +180,15 @@ const Register = () => {
           />
 
           <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-            <Text style={styles.imagePickerText}>Select Profile Image</Text>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            ) : (
+              <Text style={styles.imagePickerText}>Select Profile Image</Text>
+            )}
           </TouchableOpacity>
-          {selectedImage && (
-            <Text style={styles.imageName}>
-              {selectedImage.name}
-            </Text>
-          )}
 
           <TouchableOpacity onPress={() => router.push("/sign-in")}>
             <Text style={styles.signinText}>
@@ -205,7 +213,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.2)",
   },
   form: {
     width: "90%",

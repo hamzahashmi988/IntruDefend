@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, TouchableOpacity,Image ,  } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, Image, } from "react-native";
 // import { Link } from 'expo-router';
 import { useRouter } from 'expo-router';
 import bg from "../assets/bg-shape.png";
@@ -10,23 +10,23 @@ export default function Index() {
   const router = useRouter();
 
   return (
-  <View style={styles.container}>
-                  <Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
-      
+    <View style={styles.container}>
+      <Image source={bg} resizeMode='stretch' style={{ position: "absolute", width: 250, height: 160 }} />
+
       <Text style={styles.title}>Securing What Matters Most</Text>
 
-     {/* Icon */}
-     <View style={styles.iconContainer}>
+      {/* Icon */}
+      <View style={styles.iconContainer}>
         <Image source={icon} style={styles.image} />
       </View>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/sign-in')}>
-   
-    
+
+
         <Text style={styles.buttonText}>Get Started </Text>
       </TouchableOpacity>
 
-      
+
     </View>
   );
 }
@@ -34,13 +34,13 @@ export const options = {
   headerShown: false,
 };
 const styles = StyleSheet.create({
-  
+
 
   container: {
     flex: 1,
     padding: 10,
     backgroundColor: '#f8f9fa',
-    
+
   },
   title: {
     fontSize: 44,
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
     padding: 10,
-    marginTop:220
+    marginTop: 220
   },
 
   iconContainer: {
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
-    
+
   },
-  
+
 
 });

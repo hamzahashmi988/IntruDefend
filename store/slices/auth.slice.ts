@@ -1,70 +1,45 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-type UserModel = {};
 
-export interface AuthStateType {
-  user: UserModel | null | undefined;
-  isAuthenticated: boolean;
-  accessToken: null | string | undefined;
-  refreshToken: null | string | undefined;
-  idToken: null | string | undefined;
+export interface UserData {
+  address: string;
+  alternate_phone_no: string;
+  email: string;
+  face_encoding: number[];
+  image_url: string;
+  name: string;
+  phone_no: string;
 }
 
-const initialState: AuthStateType = {
-  user: null,
-  accessToken: null,
-  refreshToken: null,
+export interface AuthState {
+  firebase_token: string | null;
+  jwt: string | null;
+  message: string | null;
+  uid: string | null;
+  user_data: UserData | null;
+  isAuthenticated: boolean;
+}
+
+const initialState: AuthState = {
+  firebase_token: null,
+  jwt: null,
+  message: null,
+  uid: null,
+  user_data: null,
   isAuthenticated: false,
-  idToken: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setAccessToken: (
-      state,
-      action: PayloadAction<string | null | undefined>
-    ) => {
-      state.accessToken = action.payload;
+    setAuthData: (state, action: PayloadAction<Partial<AuthState>>) => {
+      return { ...state, ...action.payload, isAuthenticated: true };
     },
-    setRefreshToken: (
-      state,
-      action: PayloadAction<string | null | undefined>
-    ) => {
-      state.refreshToken = action.payload;
-    },
-    setIdToken: (state, action: PayloadAction<string | null | undefined>) => {
-      state.idToken = action.payload;
-    },
-    setUser: (state, action: PayloadAction<UserModel | null | undefined>) => {
-      state.user = action.payload;
-    },
-    updateUser: (
-      state,
-      action: PayloadAction<Partial<UserModel> | null | undefined>
-    ) => {
-      state.user = {
-        ...state.user,
-        ...action.payload,
-      };
-    },
-    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
-      state.isAuthenticated = action.payload;
-    },
-
     logout: () => initialState,
   },
 });
 
-export const {
-  setAccessToken,
-  setUser,
-  logout,
-  setIsAuthenticated,
-  setRefreshToken,
-  updateUser,
-  setIdToken,
-} = authSlice.actions;
+export const { setAuthData, logout } = authSlice.actions;
 export default authSlice.reducer;

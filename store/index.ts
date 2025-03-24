@@ -6,8 +6,8 @@ import { rootReducer } from "./slices";
 
 const appReducer = (state, action) => {
   if (action.type === "auth/logout") {
+    AsyncStorage.clear();
     state = undefined;
-    localStorage.clear();
   }
   return rootReducer(state, action);
 };

@@ -6,7 +6,7 @@ import {
   Image,
   Alert,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import * as Yup from "yup";
 
 import { useRouter } from "expo-router";
@@ -15,12 +15,18 @@ import { Form, FieldType, FormRefType } from "../form";
 import bg from "../assets/bg-shape.png";
 import Button from "@/components/Button";
 import { objectToFormData } from "@/utls/common.utils";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthData, UserData } from "@/store/slices/auth.slice";
 
 type FormDataType = {
   email: string;
   password: string;
 };
-
+export type ResponseData = {
+  data: UserData;
+  message: string;
+  status: string
+}
 const validationSchema = Yup.object({
   email: Yup.string().email().required(),
   password: Yup.string().required(),
@@ -28,6 +34,8 @@ const validationSchema = Yup.object({
 
 const Signin = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
 
   const formRef = useRef<FormRefType<FormDataType>>(null);
 
@@ -51,6 +59,12 @@ const Signin = () => {
     },
   ];
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/protected/home");
+    }
+  }, [isAuthenticated]);
+
   const handleSubmitForm = (data: FormDataType) => {
     setIsLoading(true);
 
@@ -62,38 +76,19 @@ const Signin = () => {
       body: objectToFormData({ ...data }),
     })
       .then((res) => res.json())
-      .catch(error => {
-        console.error('Error parsing JSON:', error);
-        throw error;
-      })
       .then((responseData) => {
         setIsLoading(false);
-        console.log('Response:', responseData);
+        dispatch(setAuthData(responseData.data));
 
-        Alert.alert(
-          "Success",
-          "Login completed successfully",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                console.log("OK Pressed");
-                router.push("/");
-              }
-            }
-          ],
-          { cancelable: false }
-        );
+        router.replace("/protected/home");
       })
       .catch((err) => {
         console.error("Fetch error:", err);
         setIsLoading(false);
-
         Alert.alert(
           "Error",
-          "Login failed. Please try again.",
-          [{ text: "OK", onPress: () => console.log("OK Pressed") }],
-          { cancelable: false }
+          err.message || "Login failed. Please try again.",
+          [{ text: "OK" }]
         );
       });
   };
@@ -136,23 +131,19 @@ const Signin = () => {
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1, // Ensures the background image covers the entire screen
-  },
   container: {
     flex: 1,
     justifyContent: "center", // Center content vertically
     alignItems: "center", // Center content horizontally
-    backgroundColor: "rgba(0,0,0,0.2)", // Add a semi-transparent overlay if needed
   },
   form: {
-    width: "90%", // Adjust width as needed
-    maxWidth: 400, // Optional: Set a maximum width for larger screens
+    width: "90%",
+    maxWidth: 400,
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    elevation: 5, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
