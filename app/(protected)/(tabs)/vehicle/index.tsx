@@ -1,24 +1,31 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Switch, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Switch, Platform, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from "react";
 import { VehicleStatus } from "../../../../services/types/domain.types";
 import { VehicleService } from "../../../../services/api/vehicle.service";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 
 function Vehicle() {
     const [vehicleStatus, setVehicleStatus] = useState<VehicleStatus | null>(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchVehicleStatus = async () => {
+        setError(null);
         try {
             const vehicleService = VehicleService.getInstance();
             const response = await vehicleService.getVehicleStatus();
             if (response.status === 'success') {
                 setVehicleStatus(response.data.status);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching vehicle status:', error);
+            setError(error.message || 'Failed to fetch vehicle status');
+            setVehicleStatus(null);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -32,11 +39,14 @@ function Vehicle() {
                 locked: !vehicleStatus.locked,
             });
             
-            if (response.status === 'success') {
-                setVehicleStatus(response.data.status);
+            if (response.status === 'error') {
+                throw new Error(response.message || 'Failed to update vehicle lock status');
             }
-        } catch (error) {
+            
+            setVehicleStatus(response.data.status);
+        } catch (error: any) {
             console.error('Error toggling lock:', error);
+            Alert.alert('Error', error?.message || 'Failed to update vehicle lock status');
         }
     };
 
@@ -50,11 +60,14 @@ function Vehicle() {
                 alarm_active: !vehicleStatus.alarm_active,
             });
             
-            if (response.status === 'success') {
-                setVehicleStatus(response.data.status);
+            if (response.status === 'error') {
+                throw new Error(response.message || 'Failed to update vehicle alarm status');
             }
-        } catch (error) {
+            
+            setVehicleStatus(response.data.status);
+        } catch (error: any) {
             console.error('Error toggling alarm:', error);
+            Alert.alert('Error', error?.message || 'Failed to update vehicle alarm status');
         }
     };
 
@@ -68,14 +81,39 @@ function Vehicle() {
         fetchVehicleStatus();
     }, []);
 
-    if (!vehicleStatus) {
+    if (loading) {
         return (
             <SafeAreaView style={styles.safeArea}>
-                <View style={styles.container}>
-                    <Text>Loading vehicle status...</Text>
+                <View style={[styles.container, styles.centerContent]}>
+                    <ActivityIndicator size="large" color="#007BFF" />
+                    <Text style={styles.loadingText}>Loading vehicle status...</Text>
                 </View>
             </SafeAreaView>
         );
+    }
+
+    if (error) {
+        return (
+            <SafeAreaView style={styles.safeArea}>
+                <View style={[styles.container, styles.centerContent]}>
+                    <MaterialIcons name="error-outline" size={48} color="#FF3B30" />
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity 
+                        style={styles.retryButton}
+                        onPress={() => {
+                            setLoading(true);
+                            fetchVehicleStatus();
+                        }}
+                    >
+                        <Text style={styles.retryButtonText}>Retry</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (!vehicleStatus) {
+        return null;
     }
 
     return (
@@ -95,13 +133,13 @@ function Vehicle() {
                 <View style={styles.locationCard}>
                     <Text style={styles.cardTitle}>Vehicle Location</Text>
                     <Text style={styles.cardText}>
-                        Latitude: {vehicleStatus.location.latitude}
+                        Latitude: {vehicleStatus?.location.latitude}
                     </Text>
                     <Text style={styles.cardText}>
-                        Longitude: {vehicleStatus.location.longitude}
+                        Longitude: {vehicleStatus?.location.longitude}
                     </Text>
                     <Text style={styles.cardText}>
-                        Last Updated: {new Date(vehicleStatus.last_updated).toLocaleString()}
+                        Last Updated: {new Date(vehicleStatus?.last_updated).toLocaleString()}
                     </Text>
                 </View>
 
@@ -124,11 +162,11 @@ function Vehicle() {
                             <MaterialCommunityIcons 
                                 name={vehicleStatus.alarm_active ? "bell-ring" : "bell-off"} 
                                 size={24} 
-                                color={vehicleStatus.alarm_active ? "#F44336" : "#9E9E9E"}
+                                color={vehicleStatus?.alarm_active ? "#F44336" : "#9E9E9E"}
                             />
                             <Text style={styles.statusLabel}>Alarm</Text>
                             <Switch
-                                value={vehicleStatus.alarm_active}
+                                value={vehicleStatus?.alarm_active}
                                 onValueChange={toggleAlarm}
                             />
                         </View>
@@ -144,7 +182,7 @@ function Vehicle() {
                                 color="#2196F3"
                             />
                             <Text style={styles.statusLabel}>Battery</Text>
-                            <Text style={styles.statusValue}>{vehicleStatus.battery_level}%</Text>
+                            <Text style={styles.statusValue}>{vehicleStatus?.battery_level}%</Text>
                         </View>
                         <View style={styles.statusItem}>
                             <MaterialCommunityIcons 
@@ -153,7 +191,7 @@ function Vehicle() {
                                 color="#FF9800"
                             />
                             <Text style={styles.statusLabel}>Temperature</Text>
-                            <Text style={styles.statusValue}>{vehicleStatus.temperature}°F</Text>
+                            <Text style={styles.statusValue}>{vehicleStatus?.temperature}°F</Text>
                         </View>
                     </View>
                 </View>
@@ -161,7 +199,7 @@ function Vehicle() {
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Last Updated</Text>
                     <Text style={styles.cardText}>
-                        {new Date(vehicleStatus.last_updated).toLocaleString()}
+                        {new Date(vehicleStatus?.last_updated).toLocaleString()}
                     </Text>
                 </View>
             </ScrollView>
@@ -234,6 +272,34 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
+    },
+    centerContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+    errorText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#FF3B30',
+        textAlign: 'center',
+    },
+    retryButton: {
+        marginTop: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: '#007BFF',
+        borderRadius: 8,
+    },
+    retryButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });
 

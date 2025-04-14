@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Image } from "react-native";
 import { useSelector } from "react-redux";
 
@@ -56,14 +56,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={{ uri: userData?.image_url || defaultAvatar }}
-              style={{
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-              }}
-            />
+            <Ionicons name="person" size={size} color={color} />
           ),
         }}
       />

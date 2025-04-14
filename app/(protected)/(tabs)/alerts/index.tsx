@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from "react";
 import { Alert } from "../../../../services/types/domain.types";
@@ -7,6 +8,7 @@ import { AlertService } from "../../../../services/api/alert.service";
 function Alerts() {
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const fetchAlerts = async () => {
         try {
@@ -18,6 +20,8 @@ function Alerts() {
             }
         } catch (error) {
             console.error('Error fetching alerts:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -43,7 +47,17 @@ function Alerts() {
                 }
             >
                 <Text style={styles.header}>Alerts</Text>
-                {alerts.map((alert, index) => (
+                
+                {loading ? (
+                    <View style={styles.centerContent}>
+                        <Text>Loading alerts...</Text>
+                    </View>
+                ) : alerts.length === 0 ? (
+                    <View style={styles.centerContent}>
+                        <MaterialIcons name="notifications-none" size={48} color="#999" />
+                        <Text style={styles.emptyText}>No alerts to display</Text>
+                    </View>
+                ) : alerts.map((alert, index) => (
                     <View key={index} style={styles.card}>
                         <Text style={styles.cardTitle}>{alert.title}</Text>
                         <Text style={styles.cardText}>{alert.body}</Text>
@@ -113,6 +127,17 @@ const styles = StyleSheet.create({
     cardText: {
         fontSize: 14,
         color: '#666',
+    },
+    centerContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#999',
+        marginTop: 10,
     },
 });
 

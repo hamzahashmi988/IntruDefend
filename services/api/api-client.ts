@@ -7,7 +7,7 @@ import { store } from '../../store';
 import { clearAuthData } from '../../store/slices/auth.slice';
 
 const API_URL = process.env.API_URL || 'http://127.0.0.1:5000';
-const API_TIMEOUT = Number(process.env.API_TIMEOUT) || 30000;
+const API_TIMEOUT = Number(process.env.API_TIMEOUT) || 300000;
 
 export class ApiClient {
     private static instance: ApiClient;

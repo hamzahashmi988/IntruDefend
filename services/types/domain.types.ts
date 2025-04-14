@@ -8,9 +8,11 @@ export interface User {
 export type Relationship = 'family' | 'friend' | 'employee' | 'neighbor' | 'other';
 
 export interface Face {
+    id: string;
     name: string;
     relationship: Relationship;
     is_authorized: boolean;
+    created_at: string;
 }
 
 // Alert Types

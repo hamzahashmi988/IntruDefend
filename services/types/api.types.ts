@@ -45,6 +45,11 @@ export interface VerifyFaceResponse {
     face?: Face;
 }
 
+export interface ListFacesResponse {
+    total_faces: number;
+    faces: Array<Face>;
+}
+
 // Alert Types
 export interface PushAlertRequest {
     title: string;

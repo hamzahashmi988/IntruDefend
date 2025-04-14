@@ -4,6 +4,7 @@ import {
     RegisterFaceResponse,
     VerifyFaceRequest,
     VerifyFaceResponse,
+    ListFacesResponse
 } from '../types/api.types';
 import { ApiResponse } from '../types/api-response.types';
 
@@ -28,5 +29,9 @@ export class FaceService {
 
     public async verifyFace(data: VerifyFaceRequest): Promise<ApiResponse<VerifyFaceResponse>> {
         return this.apiClient.post<VerifyFaceResponse>('/faces/verify', data);
+    }
+
+    public async listFaces(): Promise<ApiResponse<ListFacesResponse>> {
+        return this.apiClient.get<ListFacesResponse>('/faces/list');
     }
 }
