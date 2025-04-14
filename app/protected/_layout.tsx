@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Image } from "react-native";
 import { useSelector } from "react-redux";
 
@@ -25,11 +25,20 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="family"
+                name="vehicle"
                 options={{
-                    title: "Family",
+                    title: "Vehicle",
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="account-group" size={size} color={color} />
+                        <Ionicons name="car" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="faces"
+                options={{
+                    title: "Faces",
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="face-recognition" size={size} color={color} />
                     ),
                 }}
             />
@@ -47,12 +56,6 @@ export default function Layout() {
                             }}
                         />
                     ),
-                }}
-            />
-            <Tabs.Screen
-                name="add-family-member"
-                options={{
-                    href: null,  // This alone will hide the tab
                 }}
             />
         </Tabs>

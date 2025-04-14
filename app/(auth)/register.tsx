@@ -11,27 +11,21 @@ import * as Yup from "yup";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
-import { Form, FieldType, FormRefType } from "../form";
+import { Form, FieldType, FormRefType } from "@/form";
 
-import bg from "../assets/bg-shape.png";
+import bg from "../../assets/bg-shape.png";
 import Button from "@/components/Button";
-import { objectToFormData } from "@/utls/common.utils";
+import { AuthService } from "@/services/api/auth.service";
 
 type FormDataType = {
   name: string;
   email: string;
-  phone_no: string;
-  alternate_phone_no: string;
-  address: string;
   password: string;
 };
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Full Name is required"),
   email: Yup.string().email().required("Email is required"),
-  phone_no: Yup.string().required("Phone Number is required"),
-  alternate_phone_no: Yup.string().required(),
-  address: Yup.string().required("Address is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -64,99 +58,52 @@ const Register = () => {
       name: "name",
       placeholder: "Full Name",
       value: "",
-      icon: require("../assets/person.png"),
+      icon: require("../../assets/person.png"),
       containerStyles: { marginBottom: 15 },
     },
     {
       name: "email",
       placeholder: "Email",
       value: "",
-      icon: require("../assets/email.png"),
+      icon: require("../../assets/email.png"),
       keyboardType: "email-address",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "phone_no",
-      placeholder: "Phone Number",
-      value: "",
-      icon: require("../assets/phone.png"),
-      keyboardType: "phone-pad",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "alternate_phone_no",
-      placeholder: "Alternate Phone",
-      value: "",
-      icon: require("../assets/phone.png"),
-      keyboardType: "phone-pad",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "address",
-      placeholder: "Address",
-      value: "",
-      icon: require("../assets/email.png"),
       containerStyles: { marginBottom: 15 },
     },
     {
       name: "password",
       placeholder: "Password",
       value: "",
-      icon: require("../assets/lock.png"),
+      icon: require("../../assets/lock.png"),
       secureText: true,
+      containerStyles: { marginBottom: 15 },
     },
   ];
 
-  const handleSubmitForm = (data: FormDataType) => {
+  const handleSubmitForm = async (data: FormDataType) => {
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("phone_no", data.phone_no);
-    formData.append("alternate_phone_no", data.alternate_phone_no);
-    formData.append("address", data.address);
-    formData.append("password", data.password);
 
-    if (selectedImage) {
-      formData.append("image", {
-        uri: selectedImage.uri,
-        type: 'image/jpeg',
-        name: 'photo.jpg',
-      } as any);
-    }
+    try {
+      const authService = AuthService.getInstance();
+      const response = await authService.register(data);
 
-    fetch("https://96c8-39-51-111-109.ngrok-free.app/sign-up", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      body: formData,
-    })
-      .then(async (res) => {
-        setIsLoading(false);
-        if (res.status === 200) {
-          Alert.alert(
-            "Success",
-            "Signup completed successfully",
-            [{ text: "OK", onPress: () => router.push("/sign-in") }]
-          );
-        } else {
-          Alert.alert(
-            "Error",
-            "Signup failed. Please try again.",
-            [{ text: "OK" }]
-          );
-        }
-      })
-      .catch((err) => {
-        setIsLoading(false);
+      if (response.status === 'success') {
         Alert.alert(
-          "Error",
-          "Signup failed. Please check your connection.",
-          [{ text: "OK" }]
+          "Success",
+          "Registration completed successfully",
+          [{ text: "OK", onPress: () => router.push("/(auth)/sign-in") }]
         );
-        console.log("signup failed:", err);
-      });
+      } else {
+        Alert.alert("Error", response.message || "Registration failed");
+      }
+    } catch (error: unknown) {
+      console.error("Registration error:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Registration failed"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
@@ -190,17 +137,17 @@ const Register = () => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/sign-in")}>
+          <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
             <Text style={styles.signinText}>
               Already have an account? Sign In
             </Text>
           </TouchableOpacity>
 
           <Button
-            title="Register"
-            disabled={isLoading}
+            label="Register"
             onPress={onSubmit}
-            isLoading={isLoading}
+            loading={isLoading}
+            style={{ marginTop: 20 }}
           />
         </View>
       </View>

@@ -12,10 +12,13 @@ import { Loader } from "./Loader";
 
 type ButtonProps = {
   isLoading?: boolean;
+  loading?: boolean;
   title?: string;
+  label?: string;
   onPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
   fontSize?: number;
+  style?: FlexStyle | Array<FlexStyle> | ViewStyle | Array<ViewStyle>;
   containerStyles?: FlexStyle | Array<FlexStyle> | ViewStyle | Array<ViewStyle>;
   primary?: boolean;
 };
@@ -23,26 +26,31 @@ type ButtonProps = {
 const Button: React.FC<ButtonProps> = (props) => {
   const {
     isLoading = false,
-    title = "Submit",
+    loading = false,
+    title,
+    label = "Submit",
     onPress = () => {},
     disabled = false,
     fontSize = 18,
+    style = {},
     containerStyles = {},
     primary = true,
   } = props;
 
+  const buttonText = title || label;
+
   return (
     <TouchableOpacity
-      style={[styles.container(primary), containerStyles]}
+      style={[styles.container(primary), containerStyles, style]}
       activeOpacity={0.8}
       onPress={onPress}
-      disabled={isLoading || disabled}
+      disabled={isLoading || loading || disabled}
     >
-      {isLoading ? (
+      {(isLoading || loading) ? (
         <Loader size={30} />
       ) : (
         <Text size={fontSize} semiBold color="white" letterSpacing={0.36}>
-          {title}
+          {buttonText}
         </Text>
       )}
     </TouchableOpacity>

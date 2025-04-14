@@ -1,45 +1,39 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-
-export interface UserData {
-  address: string;
-  alternate_phone_no: string;
-  email: string;
-  face_encoding: number[];
-  image_url: string;
-  name: string;
-  phone_no: string;
+export interface User {
+    name: string;
+    email: string;
+    image_url?: string;
 }
 
 export interface AuthState {
-  firebase_token: string | null;
-  jwt: string | null;
-  message: string | null;
-  uid: string | null;
-  user_data: UserData | null;
-  isAuthenticated: boolean;
+    isAuthenticated: boolean;
+    user: User | null;
+    access_token: string | null;
 }
 
 const initialState: AuthState = {
-  firebase_token: null,
-  jwt: null,
-  message: null,
-  uid: null,
-  user_data: null,
-  isAuthenticated: false,
+    isAuthenticated: false,
+    user: null,
+    access_token: null,
 };
 
 const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    setAuthData: (state, action: PayloadAction<Partial<AuthState>>) => {
-      return { ...state, ...action.payload, isAuthenticated: true };
+    name: 'auth',
+    initialState,
+    reducers: {
+        setAuthData: (state, action: PayloadAction<{ user: User; access_token: string }>) => {
+            state.isAuthenticated = true;
+            state.user = action.payload.user;
+            state.access_token = action.payload.access_token;
+        },
+        clearAuthData: (state) => {
+            state.isAuthenticated = false;
+            state.user = null;
+            state.access_token = null;
+        },
     },
-    logout: () => initialState,
-  },
 });
 
-export const { setAuthData, logout } = authSlice.actions;
+export const { setAuthData, clearAuthData } = authSlice.actions;
 export default authSlice.reducer;
