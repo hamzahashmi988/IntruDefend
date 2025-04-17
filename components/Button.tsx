@@ -45,6 +45,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       activeOpacity={0.8}
       onPress={onPress}
       disabled={isLoading || loading || disabled}
+      className=""
     >
       {(isLoading || loading) ? (
         <Loader size={30} />

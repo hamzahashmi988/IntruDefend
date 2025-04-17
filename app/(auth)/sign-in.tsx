@@ -64,7 +64,8 @@ const Signin = () => {
     try {
       const authService = AuthService.getInstance();
       const response = await authService.login(data);
-      
+      console.log("data1", data);
+
       if (response.status === 'success') {
         dispatch(setAuthData({
           user: response.data.user,

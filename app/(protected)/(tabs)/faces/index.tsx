@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, RefreshControl, Platform, ActionSheetIOS } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
@@ -39,16 +39,70 @@ export default function Faces() {
     });
 
     const pickImage = async () => {
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-            base64: true,
-        });
+        // Request camera permissions first
+        const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+        
+        if (cameraStatus !== 'granted') {
+            Alert.alert(
+                'Permission Required',
+                'Camera access is required to take photos.',
+                [{ text: 'OK' }]
+            );
+            return;
+        }
 
-        if (!result.canceled && result.assets[0].base64) {
-            setSelectedImage('data:image/jpeg;base64,' + result.assets[0].base64);
+        try {
+            if (Platform.OS === 'ios') {
+                // For iOS, show action sheet to choose between camera and gallery
+                ActionSheetIOS.showActionSheetWithOptions(
+                    {
+                        options: ['Cancel', 'Take Photo', 'Choose from Library'],
+                        cancelButtonIndex: 0,
+                    },
+                    async (buttonIndex) => {
+                        let result;
+                        if (buttonIndex === 1) {
+                            // Take Photo
+                            result = await ImagePicker.launchCameraAsync({
+                                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 1,
+                                base64: true,
+                            });
+                        } else if (buttonIndex === 2) {
+                            // Choose from Library
+                            result = await ImagePicker.launchImageLibraryAsync({
+                                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 1,
+                                base64: true,
+                            });
+                        }
+
+                        if (result && !result.canceled && result.assets[0].base64) {
+                            setSelectedImage('data:image/jpeg;base64,' + result.assets[0].base64);
+                        }
+                    }
+                );
+            } else {
+                // For Android, directly launch camera
+                const result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                    base64: true,
+                });
+
+                if (!result.canceled && result.assets[0].base64) {
+                    setSelectedImage('data:image/jpeg;base64,' + result.assets[0].base64);
+                }
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert('Error', 'Failed to pick image. Please try again.');
         }
     };
 
@@ -131,12 +185,12 @@ export default function Faces() {
             >
                 <View style={styles.headerContainer}>
                     <Text style={styles.header}>Face Recognition</Text>
-                    <TouchableOpacity 
+                    {/* <TouchableOpacity 
                         onPress={fetchRegisteredFaces}
                         style={styles.refreshButton}
                     >
                         <MaterialCommunityIcons name="refresh" size={24} color="#333" />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
 
                 {/* Registered Faces List */}
@@ -209,19 +263,44 @@ export default function Faces() {
                         name="relationship"
                         rules={{ required: 'Relationship is required' }}
                         render={({ field: { onChange, value } }) => (
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={value}
-                                    onValueChange={onChange}
-                                    style={styles.picker}
+                            Platform.OS === 'ios' ? (
+                                <TouchableOpacity 
+                                    style={[styles.pickerContainer, styles.iosPickerButton]}
+                                    onPress={() => {
+                                        ActionSheetIOS.showActionSheetWithOptions(
+                                            {
+                                                options: ['Cancel', 'Family', 'Friend', 'Employee', 'Neighbor', 'Other'],
+                                                cancelButtonIndex: 0,
+                                            },
+                                            (buttonIndex) => {
+                                                if (buttonIndex !== 0) {
+                                                    const values = ['family', 'friend', 'employee', 'neighbor', 'other'];
+                                                    onChange(values[buttonIndex - 1]);
+                                                }
+                                            }
+                                        );
+                                    }}
                                 >
-                                    <Picker.Item label="Family" value="family" />
-                                    <Picker.Item label="Friend" value="friend" />
-                                    <Picker.Item label="Employee" value="employee" />
-                                    <Picker.Item label="Neighbor" value="neighbor" />
-                                    <Picker.Item label="Other" value="other" />
-                                </Picker>
-                            </View>
+                                    <Text style={styles.iosPickerText}>
+                                        {value.charAt(0).toUpperCase() + value.slice(1)}
+                                    </Text>
+                                    <MaterialCommunityIcons name="chevron-down" size={24} color="#666" />
+                                </TouchableOpacity>
+                            ) : (
+                                <View style={styles.pickerContainer}>
+                                    <Picker
+                                        selectedValue={value}
+                                        onValueChange={onChange}
+                                        style={styles.picker}
+                                    >
+                                        <Picker.Item label="Family" value="family" />
+                                        <Picker.Item label="Friend" value="friend" />
+                                        <Picker.Item label="Employee" value="employee" />
+                                        <Picker.Item label="Neighbor" value="neighbor" />
+                                        <Picker.Item label="Other" value="other" />
+                                    </Picker>
+                                </View>
+                            )
                         )}
                     />
 
@@ -356,9 +435,25 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 8,
         marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+        overflow: 'hidden',
     },
     picker: {
         height: 50,
+        width: '100%',
+        backgroundColor: 'transparent',
+    },
+    iosPickerButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 12,
+        height: 50,
+    },
+    iosPickerText: {
+        fontSize: 16,
+        color: '#333',
     },
     card: {
         backgroundColor: 'white',

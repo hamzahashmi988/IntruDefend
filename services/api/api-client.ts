@@ -6,7 +6,7 @@ import { ApiError, ApiResponse, ErrorResponse } from '../types/api-response.type
 import { store } from '../../store';
 import { clearAuthData } from '../../store/slices/auth.slice';
 
-const API_URL = process.env.API_URL || 'http://127.0.0.1:5000';
+const API_URL = process.env.API_URL || 'https://0fc8-39-51-111-26.ngrok-free.app/';
 const API_TIMEOUT = Number(process.env.API_TIMEOUT) || 300000;
 
 export class ApiClient {

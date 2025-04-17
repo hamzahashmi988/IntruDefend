@@ -30,6 +30,7 @@ export class AuthService {
 
     public async login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
         const response = await this.apiClient.post<LoginResponse>('/auth/login', data);
+        
         if (response.status === 'success') {
             await AsyncStorage.setItem('access_token', response.data.access_token);
         }

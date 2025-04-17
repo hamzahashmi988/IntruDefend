@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/store/slices/auth.slice";
+import { clearAuthData } from "@/store/slices/auth.slice";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -13,7 +13,7 @@ export default function ProtectedHome() {
     const handleLogout = async () => {
         try {
             await AsyncStorage.clear();
-            dispatch(logout());
+            dispatch(clearAuthData());
 
             Alert.alert(
                 "Success",
