@@ -11,27 +11,21 @@ import * as Yup from "yup";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
-import { Form, FieldType, FormRefType } from "../form";
+import { Form, FieldType, FormRefType } from "@/form";
 
-import bg from "../assets/bg-shape.png";
+import bg from "../../assets/bg-shape.png";
 import Button from "@/components/Button";
-import { objectToFormData } from "@/utls/common.utils";
+import { AuthService } from "@/services/api/auth.service";
 
 type FormDataType = {
-  fullName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
-  alternatePhone: string;
-  address: string;
   password: string;
 };
 
 const validationSchema = Yup.object({
-  fullName: Yup.string().required("Full Name is required"),
+  name: Yup.string().required("Full Name is required"),
   email: Yup.string().email().required("Email is required"),
-  phoneNumber: Yup.string().required("Phone Number is required"),
-  alternatePhone: Yup.string().required(),
-  address: Yup.string().required("Address is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -41,7 +35,8 @@ const Register = () => {
   const router = useRouter();
   const formRef = useRef<FormRefType<FormDataType>>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -52,70 +47,63 @@ const Register = () => {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      // Store the image info directly
+      setSelectedImage(result.assets[0]);
+      setImageUri(result.assets[0].uri);
     }
   };
 
   const FormConfig: Array<FieldType> = [
     {
-      name: "fullName",
+      name: "name",
       placeholder: "Full Name",
       value: "",
-      icon: require("../assets/person.png"),
+      icon: require("../../assets/person.png"),
       containerStyles: { marginBottom: 15 },
     },
     {
       name: "email",
       placeholder: "Email",
       value: "",
-      icon: require("../assets/email.png"),
+      icon: require("../../assets/email.png"),
       keyboardType: "email-address",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "phoneNumber",
-      placeholder: "Phone Number",
-      value: "",
-      icon: require("../assets/phone.png"),
-      keyboardType: "phone-pad",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "alternatePhone",
-      placeholder: "Alternate Phone",
-      value: "",
-      icon: require("../assets/phone.png"),
-      keyboardType: "phone-pad",
-      containerStyles: { marginBottom: 15 },
-    },
-    {
-      name: "address",
-      placeholder: "Address",
-      value: "",
-      icon: require("../assets/email.png"),
       containerStyles: { marginBottom: 15 },
     },
     {
       name: "password",
       placeholder: "Password",
       value: "",
-      icon: require("../assets/lock.png"),
+      icon: require("../../assets/lock.png"),
       secureText: true,
+      containerStyles: { marginBottom: 15 },
     },
   ];
 
-  const handleSubmitForm = (data: FormDataType) => {
+  const handleSubmitForm = async (data: FormDataType) => {
     setIsLoading(true);
 
-    fetch("http://localhost:3000/sign-up", {
-      method: "POST",
-      body: objectToFormData({ ...data, file: selectedImage }),
-    }).then((res) => {
-      if (res.status == 200) {
-        Alert.alert("Signup success");
+    try {
+      const authService = AuthService.getInstance();
+      const response = await authService.register(data);
+
+      if (response.status === 'success') {
+        Alert.alert(
+          "Success",
+          "Registration completed successfully",
+          [{ text: "OK", onPress: () => router.push("/(auth)/sign-in") }]
+        );
+      } else {
+        Alert.alert("Error", response.message || "Registration failed");
       }
+    } catch (error: unknown) {
+      console.error("Registration error:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Registration failed"
+      );
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   const onSubmit = () => formRef?.current?.handleSubmit(handleSubmitForm)();
@@ -139,25 +127,27 @@ const Register = () => {
           />
 
           <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-            <Text style={styles.imagePickerText}>Select Profile Image</Text>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            ) : (
+              <Text style={styles.imagePickerText}>Select Profile Image</Text>
+            )}
           </TouchableOpacity>
-          {selectedImage && (
-            <Text style={styles.imageName}>
-              {selectedImage.split("/").pop()}
-            </Text>
-          )}
 
-          <TouchableOpacity onPress={() => router.canGoBack()}>
+          <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
             <Text style={styles.signinText}>
               Already have an account? Sign In
             </Text>
           </TouchableOpacity>
 
           <Button
-            title="Register"
-            disabled={isLoading}
+            label="Register"
             onPress={onSubmit}
-            isLoading={isLoading}
+            loading={isLoading}
+            style={{ marginTop: 20 }}
           />
         </View>
       </View>
@@ -170,7 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.2)",
   },
   form: {
     width: "90%",
