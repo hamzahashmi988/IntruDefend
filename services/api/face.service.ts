@@ -23,6 +23,13 @@ export class FaceService {
         return FaceService.instance;
     }
 
+    public async updateAuthorization(face_id: string, is_authorized: boolean) {
+        return this.apiClient.post('/faces/update-authorization', {
+            face_id,
+            is_authorized
+        });
+    }
+
     public async registerFace(data: RegisterFaceRequest): Promise<ApiResponse<RegisterFaceResponse>> {
         return this.apiClient.post<RegisterFaceResponse>('/faces/register', data);
     }

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Face, Relationship } from "../../../../services/types/domain.types";
 import { FaceService } from "../../../../services/api/face.service";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import FaceAuthorizationSwitch from './FaceAuthorizationSwitch';
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "../../../../components/Input";
 import Button from "../../../../components/Button";
@@ -171,7 +172,6 @@ export default function Faces() {
             setIsLoading(false);
         }
     };
-    console.log(registeredFaces);
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScrollView 
@@ -207,26 +207,23 @@ export default function Faces() {
                         </View>
                     ) : (
                         registeredFaces.map(face => (
-                            <View key={face.id} style={styles.faceCard}>
-                                <View style={styles.faceInfo}>
-                                    <Text style={styles.faceName}>{face.name}</Text>
-                                    <Text style={styles.faceRelationship}>{face.relationship}</Text>
-                                    <Text style={styles.faceDate}>
-                                        Added: {new Date(face.created_at).toLocaleDateString()}
-                                    </Text>
-                                </View>
-                                <View style={[styles.authStatus, face.is_authorized && styles.authorized]}>
-                                    <MaterialCommunityIcons 
-                                        name={face.is_authorized ? "check-circle" : "alert-circle"} 
-                                        size={24} 
-                                        color={face.is_authorized ? "#4CAF50" : "#FF9800"} 
-                                    />
-                                    <Text style={styles.authText}>
-                                        {face.is_authorized ? "Authorized" : "Pending"}
-                                    </Text>
-                                </View>
-                            </View>
-                        ))
+    <View key={face.id} style={styles.faceCard}>
+        <View style={styles.faceInfo}>
+            <Text style={styles.faceName}>{face.name}</Text>
+            <Text style={styles.faceRelationship}>{face.relationship}</Text>
+            <Text style={styles.faceDate}>
+                Added: {new Date(face.created_at).toLocaleDateString()}
+            </Text>
+        </View>
+        <FaceAuthorizationSwitch
+            faceId={face.id}
+            isAuthorized={face.is_authorized}
+            onStatusChange={newStatus => {
+                setRegisteredFaces(prev => prev.map(f => f.id === face.id ? { ...f, is_authorized: newStatus } : f));
+            }}
+        />
+    </View>
+))
                     )}
                 </View>
 
