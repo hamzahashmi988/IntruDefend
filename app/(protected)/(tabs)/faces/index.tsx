@@ -194,7 +194,7 @@ export default function Faces() {
                 </View>
 
                 {/* Registered Faces List */}
-                <View style={styles.section}>
+                <View style={styles.section1}>
                     <Text style={styles.sectionTitle}>Registered Faces</Text>
                     {loadingFaces ? (
                         <View style={styles.centerContent}>
@@ -231,7 +231,7 @@ export default function Faces() {
                 </View>
 
                 {/* Registration Form */}
-                <View style={styles.section}>
+                <View style={styles.section2}>
                     <Text style={styles.sectionTitle}>Register New Face</Text>
                     <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
                         {selectedImage ? (
@@ -339,8 +339,11 @@ const styles = StyleSheet.create({
         color: '#999',
         marginTop: 10,
     },
-    section: {
+    section1: {
         marginBottom: 30,
+    },
+    section2: {
+        marginBottom: 60,
     },
     sectionTitle: {
         fontSize: 20,

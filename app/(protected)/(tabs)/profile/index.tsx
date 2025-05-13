@@ -32,7 +32,7 @@ function Profile() {
                 </View>
 
                 {/* Profile Options */}
-                <View style={styles.section}>
+                {/* <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Account Settings</Text>
                     
                     <TouchableOpacity style={styles.option}>
@@ -52,7 +52,7 @@ function Profile() {
                         <Text style={styles.optionText}>Notifications</Text>
                         <MaterialIcons name="chevron-right" size={24} color="#999" />
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 {/* Logout Button */}
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>

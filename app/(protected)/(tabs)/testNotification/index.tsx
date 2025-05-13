@@ -5,6 +5,7 @@ import { NotificationService } from '../../../../services/api/notification.servi
 import { checkNotificationPermission, getExpoPushToken } from '../../../../services/api/notification-permission.utils';
 import { RootState } from '../../../../store';
 import { PermissionStatus } from 'expo-modules-core';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TestNotificationScreen() {
   const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>(PermissionStatus.UNDETERMINED);
@@ -20,7 +21,7 @@ export default function TestNotificationScreen() {
     try {
       const permission = await checkNotificationPermission();
       setPermissionStatus(permission.status);
-      
+
       const token = await getExpoPushToken();
       setPushToken(token);
     } catch (error) {
@@ -40,7 +41,7 @@ export default function TestNotificationScreen() {
       await checkCurrentStatus();
     } catch (error) {
       Alert.alert('Error', 'Failed to register device');
-      console.log('error: ',error)
+      console.log('error: ', error)
     }
   };
 
@@ -60,42 +61,44 @@ export default function TestNotificationScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Notification Settings</Text>
-      
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Permission Status:</Text>
-        <Text style={styles.value}>{permissionStatus}</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View >
+        <Text style={styles.title}>Notification Settings</Text>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Push Token:</Text>
-        <Text style={styles.value} numberOfLines={2}>{pushToken || 'Not available'}</Text>
-      </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>Permission Status:</Text>
+          <Text style={styles.value}>{permissionStatus}</Text>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Register Device"
-          onPress={handleRegisterDevice}
-          disabled={!user?.email}
-        />
-      </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>Push Token:</Text>
+          <Text style={styles.value} numberOfLines={2}>{pushToken || 'Not available'}</Text>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Unregister Device"
-          onPress={handleUnregisterDevice}
-          disabled={!user?.email}
-        />
-      </View>
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Register Device"
+            onPress={handleRegisterDevice}
+            disabled={!user?.email}
+          />
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Refresh Status"
-          onPress={checkCurrentStatus}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Unregister Device"
+            onPress={handleUnregisterDevice}
+            disabled={!user?.email}
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Refresh Status"
+            onPress={checkCurrentStatus}
+          />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
