@@ -79,6 +79,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="liveLocation/index"
+        options={{
+          title: "Live Location",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon focused={focused} title="Location">
+              <MaterialIcons name="location-on" size={24} color={focused ? '#fff' : '#A0A0A0'} />
+            </TabIcon>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile/index"
         options={{
           title: "Profile",
