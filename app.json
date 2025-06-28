@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "React_Native_restate",
-    "slug": "React_Native_restate",
+    "name": "intrudefend",
+    "slug": "intrudefend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.hassamaslam12.intrudefend"
     },
     "web": {
       "bundler": "metro",

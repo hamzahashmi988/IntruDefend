@@ -6,7 +6,7 @@ import { ApiError, ApiResponse, ErrorResponse } from '../types/api-response.type
 import { store } from '../../store';
 import { clearAuthData } from '../../store/slices/auth.slice';
 
-const API_URL = process.env.API_URL || 'https://good-lovely-escargot.ngrok-free.app/';
+const API_URL = process.env.API_URL || 'http://ec2-15-206-67-168.ap-south-1.compute.amazonaws.com:5000/';
 const API_TIMEOUT = Number(process.env.API_TIMEOUT) || 300000;
 
 export class ApiClient {
